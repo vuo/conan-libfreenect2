@@ -5,7 +5,7 @@ class Libfreenect2Conan(ConanFile):
     version = '0.2.0'
     requires = 'libusb/1.0.21@vuo/stable'
     settings = 'os', 'compiler', 'build_type', 'arch'
-    url = 'https://bintray.com/vuo/conan/libfreenect2%3Avuo'
+    url = 'https://github.com/vuo/conan-libfreenect2'
     license = 'https://github.com/OpenKinect/libfreenect2/blob/master/APACHE20'
     description = 'Driver for the Kinect for Windows v2 / Kinect for Xbox One'
     source_dir = 'libfreenect2-%s' % version
