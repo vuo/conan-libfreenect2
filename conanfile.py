@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+import shutil
 
 class Libfreenect2Conan(ConanFile):
     name = 'libfreenect2'
@@ -10,7 +11,6 @@ class Libfreenect2Conan(ConanFile):
     description = 'Driver for the Kinect for Windows v2 / Kinect for Xbox One'
     source_dir = 'libfreenect2-%s' % version
     build_dir = '_build'
-    dylib_name = 'libfreenect2.%s.dylib' % version
     generators = 'cmake'
 
     def source(self):
@@ -54,13 +54,16 @@ class Libfreenect2Conan(ConanFile):
                             build_dir='.',
                             args=['-Wno-dev', '--no-warn-unused-cli'])
             cmake.build()
-            self.run('install_name_tool -id @rpath/%s lib/%s' % (self.dylib_name, self.dylib_name))
+
+            shutil.move('lib/libfreenect2.0.2.0.dylib', 'lib/libfreenect2.dylib')
+
+            self.run('install_name_tool -id @rpath/libfreenect2.dylib lib/libfreenect2.dylib')
 
     def package(self):
         self.copy('*.h', src='%s/include/libfreenect2' % self.source_dir, dst='include/libfreenect2')
         self.copy('*.h', src='%s/libfreenect2' % self.build_dir, dst='include/libfreenect2')
         self.copy('*.hpp', src='%s/include/libfreenect2' % self.source_dir, dst='include/libfreenect2')
-        self.copy(self.dylib_name, src='%s/lib' % self.build_dir, dst='lib')
+        self.copy('libfreenect2.dylib', src='%s/lib' % self.build_dir, dst='lib')
 
     def package_info(self):
-        self.cpp_info.libs = ['freenect2.%s' % self.version]
+        self.cpp_info.libs = ['freenect2']
