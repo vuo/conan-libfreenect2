@@ -3,18 +3,22 @@ import shutil
 
 class Libfreenect2Conan(ConanFile):
     name = 'libfreenect2'
-    version = '0.2.0'
-    requires = 'libusb/1.0.21@vuo/stable'
+
+    source_version = '0.2.0'
+    package_version = '2'
+    version = '%s-%s' % (source_version, package_version)
+
+    requires = 'libusb/1.0.21-2@vuo/stable'
     settings = 'os', 'compiler', 'build_type', 'arch'
     url = 'https://github.com/vuo/conan-libfreenect2'
     license = 'https://github.com/OpenKinect/libfreenect2/blob/master/APACHE20'
     description = 'Driver for the Kinect for Windows v2 / Kinect for Xbox One'
-    source_dir = 'libfreenect2-%s' % version
+    source_dir = 'libfreenect2-%s' % source_version
     build_dir = '_build'
     generators = 'cmake'
 
     def source(self):
-        tools.get('https://github.com/OpenKinect/libfreenect2/archive/v%s.tar.gz' % self.version,
+        tools.get('https://github.com/OpenKinect/libfreenect2/archive/v%s.tar.gz' % self.source_version,
                   sha256='344019f4360d3858f4c5843e215b0b9d0c0d396a2ebe5cb1953c262df4d9ff54')
 
         tools.replace_in_file('%s/CMakeLists.txt' % self.source_dir,
@@ -41,7 +45,7 @@ class Libfreenect2Conan(ConanFile):
             cmake.definitions['BUILD_OPENNI2_DRIVER'] = False
             cmake.definitions['BUILD_SHARED_LIBS'] = True
             cmake.definitions['CMAKE_CXX_COMPILER'] = '/usr/local/bin/clang++'
-            cmake.definitions['CMAKE_CXX_FLAGS'] = '-Oz -mmacosx-version-min=10.8'
+            cmake.definitions['CMAKE_CXX_FLAGS'] = '-Oz -mmacosx-version-min=10.10'
             cmake.definitions['ENABLE_CUDA'] = False
             cmake.definitions['ENABLE_CXX11'] = False
             cmake.definitions['ENABLE_OPENCL'] = True
