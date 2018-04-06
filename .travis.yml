@@ -15,8 +15,11 @@ matrix:
                   sources:
                       - sourceline: 'ppa:beineri/opt-qt594-trusty'
                   packages:
+                      - beignet-dev
                       - libc++-dev
                       - libc++abi-dev
+                      - libturbojpeg
+                      - libjpeg-turbo8-dev
                       - qt59qbs
 
 before_install:
