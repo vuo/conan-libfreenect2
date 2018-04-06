@@ -37,13 +37,20 @@ class Libfreenect2Conan(ConanFile):
                               conan_basic_setup()
                               ''')
 
+        if platform.system() == 'Darwin':
+            libext = 'dylib'
+        elif platform.system() == 'Linux':
+            libext = 'so'
+        else:
+            raise Exception('Unknown platform "%s"' % platform.system())
+
         # Ensure libfreenect2 uses the version of libusb that we built.
         tools.replace_in_file('%s/CMakeLists.txt' % self.source_dir,
                               'FIND_PACKAGE(LibUSB REQUIRED)',
                               '''
                               SET(LibUSB_INCLUDE_DIRS ${CONAN_INCLUDE_DIRS_LIBUSB}/libusb-1.0)
-                              SET(LibUSB_LIBRARIES ${CONAN_LIB_DIRS_LIBUSB}/lib${CONAN_LIBS_LIBUSB}.dylib)
-                              ''')
+                              SET(LibUSB_LIBRARIES ${CONAN_LIB_DIRS_LIBUSB}/lib${CONAN_LIBS_LIBUSB}.%s)
+                              ''' % libext)
 
         self.run('mv %s/APACHE20 %s/%s.txt' % (self.source_dir, self.source_dir, self.name))
 
