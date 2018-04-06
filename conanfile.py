@@ -5,7 +5,7 @@ class Libfreenect2Conan(ConanFile):
     name = 'libfreenect2'
 
     source_version = '0.2.0'
-    package_version = '2'
+    package_version = '3'
     version = '%s-%s' % (source_version, package_version)
 
     requires = 'libusb/1.0.21-2@vuo/stable'
