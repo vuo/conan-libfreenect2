@@ -20,6 +20,7 @@ matrix:
                       - libc++abi-dev
                       - libturbojpeg
                       - libjpeg-turbo8-dev
+                      - opencl-headers
                       - qt59qbs
 
 before_install:
