@@ -12,6 +12,7 @@ int main()
 
 	printf("Successfully initialized the Freenect2 driver.  Detected %d currently-attached device(s).\n", f->enumerateDevices());
 
+#ifndef linux
 	libfreenect2::PacketPipeline *pipeline = new libfreenect2::OpenCLPacketPipeline(-1);
 	if (!pipeline)
 	{
@@ -22,6 +23,8 @@ int main()
 	printf("Successfully initialized the OpenCL pipeline.\n");
 
 	delete pipeline;
+#endif
+
 	delete f;
 
 	return 0;

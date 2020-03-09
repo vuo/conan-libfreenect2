@@ -5,17 +5,18 @@ import shutil
 class Libfreenect2Conan(ConanFile):
     name = 'libfreenect2'
 
-    source_version = '0.2.0'
-    package_version = '3'
+    # libfreenect2 hasn't tagged a release in a while, so just use package_version.
+    source_version = '0'
+    package_version = '5'
     version = '%s-%s' % (source_version, package_version)
 
     build_requires = 'llvm/3.3-5@vuo/stable'
     requires = 'libusb/1.0.21-3@vuo/stable'
     settings = 'os', 'compiler', 'build_type', 'arch'
-    url = 'https://github.com/vuo/conan-libfreenect2'
+    url = 'https://github.com/OpenKinect/libfreenect2'
     license = 'https://github.com/OpenKinect/libfreenect2/blob/master/APACHE20'
     description = 'Driver for the Kinect for Windows v2 / Kinect for Xbox One'
-    source_dir = 'libfreenect2-%s' % source_version
+    source_dir = 'libfreenect2'
     build_dir = '_build'
     generators = 'cmake'
 
@@ -26,8 +27,9 @@ class Libfreenect2Conan(ConanFile):
             raise Exception('Unknown platform "%s"' % platform.system())
 
     def source(self):
-        tools.get('https://github.com/OpenKinect/libfreenect2/archive/v%s.tar.gz' % self.source_version,
-                  sha256='344019f4360d3858f4c5843e215b0b9d0c0d396a2ebe5cb1953c262df4d9ff54')
+        self.run("git clone https://github.com/OpenKinect/libfreenect2.git")
+        with tools.chdir(self.source_dir):
+            self.run("git checkout fd64c5d")
 
         tools.replace_in_file('%s/CMakeLists.txt' % self.source_dir,
                               'PROJECT(libfreenect2)',
@@ -61,16 +63,17 @@ class Libfreenect2Conan(ConanFile):
             cmake.definitions['BUILD_EXAMPLES'] = False
             cmake.definitions['BUILD_OPENNI2_DRIVER'] = False
             cmake.definitions['BUILD_SHARED_LIBS'] = True
-            # cmake.definitions['CMAKE_CXX_FLAGS'] = '-Oz -std=c++11 -stdlib=libc++ -I' + ' -I'.join(self.deps_cpp_info['llvm'].include_paths)
             cmake.definitions['CMAKE_CXX_FLAGS'] = '-Oz -std=c++11 -stdlib=libc++'
             cmake.definitions['CMAKE_CXX_COMPILER'] = self.deps_cpp_info['llvm'].rootpath + '/bin/clang++'
             cmake.definitions['CMAKE_SHARED_LINKER_FLAGS'] = cmake.definitions['CMAKE_STATIC_LINKER_FLAGS'] = cmake.definitions['CMAKE_EXE_LINKER_FLAGS'] = '-stdlib=libc++ -lc++abi'
             if platform.system() == 'Darwin':
                 cmake.definitions['CMAKE_CXX_FLAGS'] += ' -mmacosx-version-min=10.10'
-            cmake.definitions['CMAKE_VERBOSE_MAKEFILE'] = 'ON'
+                cmake.definitions['CMAKE_OSX_SYSROOT'] = '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk'
+            # cmake.definitions['CMAKE_VERBOSE_MAKEFILE'] = 'ON'
             cmake.definitions['ENABLE_CUDA'] = False
-            cmake.definitions['ENABLE_CXX11'] = False
-            cmake.definitions['ENABLE_OPENCL'] = True
+            cmake.definitions['ENABLE_CXX11'] = True
+            if platform.system() == 'Darwin':
+                cmake.definitions['ENABLE_OPENCL'] = True
             cmake.definitions['ENABLE_OPENGL'] = False # Use the OpenCL packet processor, which is faster than the OpenGL packet processor.
             cmake.definitions['ENABLE_PROFILING'] = True
             cmake.definitions['ENABLE_TEGRAJPEG'] = False
@@ -100,6 +103,7 @@ class Libfreenect2Conan(ConanFile):
         self.copy('*.h', src='%s/libfreenect2' % self.build_dir, dst='include/libfreenect2')
         self.copy('*.hpp', src='%s/include/libfreenect2' % self.source_dir, dst='include/libfreenect2')
         self.copy('libfreenect2.%s' % libext, src='%s/lib' % self.build_dir, dst='lib')
+        self.copy('%s.txt' % self.name, src=self.source_dir, dst='license')
 
     def package_info(self):
         self.cpp_info.libs = ['freenect2']
