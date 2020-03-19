@@ -7,7 +7,7 @@ class Libfreenect2Conan(ConanFile):
 
     # libfreenect2 hasn't tagged a release in a while, so just use package_version.
     source_version = '0'
-    package_version = '5'
+    package_version = '6'
     version = '%s-%s' % (source_version, package_version)
 
     build_requires = 'llvm/3.3-5@vuo/stable'
@@ -86,6 +86,7 @@ class Libfreenect2Conan(ConanFile):
             if platform.system() == 'Darwin':
                 shutil.move('lib/libfreenect2.0.2.0.dylib', 'lib/libfreenect2.dylib')
                 self.run('install_name_tool -id @rpath/libfreenect2.dylib lib/libfreenect2.dylib')
+                self.run('install_name_tool -change @rpath/libc++.dylib /usr/lib/libc++.1.dylib lib/libfreenect2.dylib')
             elif platform.system() == 'Linux':
                 shutil.move('lib/libfreenect2.so.0.2.0', 'lib/libfreenect2.so')
                 patchelf = self.deps_cpp_info['patchelf'].rootpath + '/bin/patchelf'
